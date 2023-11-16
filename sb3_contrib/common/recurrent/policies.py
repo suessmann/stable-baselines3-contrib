@@ -189,7 +189,7 @@ class RecurrentActorCriticPolicy(ActorCriticPolicy):
         # If we don't have to reset the state in the middle of a sequence
         # we can avoid the for loop, which speeds up things
         
-        lstm_output, lstm_states = lstm(features_sequence, lstm_states)
+        lstm_output, lstm_states = lstm(features_sequence, (lstm_states[0], lstm_states[1]))
         lstm_output = th.flatten(lstm_output.transpose(0, 1), start_dim=0, end_dim=1)
         return lstm_output, lstm_states
 
