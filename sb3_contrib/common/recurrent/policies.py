@@ -188,27 +188,27 @@ class RecurrentActorCriticPolicy(ActorCriticPolicy):
 
         # If we don't have to reset the state in the middle of a sequence
         # we can avoid the for loop, which speeds up things
-        if th.all(episode_starts == 0.0):
-            lstm_output, lstm_states = lstm(features_sequence, lstm_states)
-            lstm_output = th.flatten(lstm_output.transpose(0, 1), start_dim=0, end_dim=1)
-            return lstm_output, lstm_states
-
-        lstm_output = []
-        # Iterate over the sequence
-        for features, episode_start in zip_strict(features_sequence, episode_starts):
-            hidden, lstm_states = lstm(
-                features.unsqueeze(dim=0),
-                (
-                    # Reset the states at the beginning of a new episode
-                    (1.0 - episode_start).view(1, n_seq, 1) * lstm_states[0],
-                    (1.0 - episode_start).view(1, n_seq, 1) * lstm_states[1],
-                ),
-            )
-            lstm_output += [hidden]
-        # Sequence to batch
-        # (sequence length, n_seq, lstm_out_dim) -> (batch_size, lstm_out_dim)
-        lstm_output = th.flatten(th.cat(lstm_output).transpose(0, 1), start_dim=0, end_dim=1)
+        
+        lstm_output, lstm_states = lstm(features_sequence, lstm_states)
+        lstm_output = th.flatten(lstm_output.transpose(0, 1), start_dim=0, end_dim=1)
         return lstm_output, lstm_states
+
+        # lstm_output = []
+        # # Iterate over the sequence
+        # for features, episode_start in zip_strict(features_sequence, episode_starts):
+        #     hidden, lstm_states = lstm(
+        #         features.unsqueeze(dim=0),
+        #         (
+        #             # Reset the states at the beginning of a new episode
+        #             (1.0 - episode_start).view(1, n_seq, 1) * lstm_states[0],
+        #             (1.0 - episode_start).view(1, n_seq, 1) * lstm_states[1],
+        #         ),
+        #     )
+        #     lstm_output += [hidden]
+        # # Sequence to batch
+        # # (sequence length, n_seq, lstm_out_dim) -> (batch_size, lstm_out_dim)
+        # lstm_output = th.flatten(th.cat(lstm_output).transpose(0, 1), start_dim=0, end_dim=1)
+        # return lstm_output, lstm_states
 
     def forward(
         self,
